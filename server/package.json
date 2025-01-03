@@ -1,0 +1,22 @@
+{
+  "name": "chat-app",
+  "version": "1.0.0",
+  "description": "simple chat app using websockets",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsc -b && node dist/index.js"
+  },
+  "keywords": [
+    "websockets",
+    "chatapp",
+    "pub",
+    "sub"
+  ],
+  "author": "Faizan Raza",
+  "license": "ISC",
+  "dependencies": {
+    "@types/ws": "^8.5.13",
+    "typescript": "^5.7.2",
+    "ws": "^8.18.0"
+  }
+}
