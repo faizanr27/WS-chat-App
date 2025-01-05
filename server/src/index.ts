@@ -2,12 +2,7 @@ import { WebSocketServer, WebSocket } from "ws";
 
 const wss = new WebSocketServer({ port: 8080 });
 
-interface User{
-    socket: WebSocket;
-    room: string;
-}
-
-let allSockets: User[] = [];
+const rooms: Map<string, Set<WebSocket>> = new Map();
 
 wss.on("connection", (socket) => {
 
@@ -15,28 +10,77 @@ wss.on("connection", (socket) => {
 
         const parsedMessage = JSON.parse(message.toString())
 
-        if(parsedMessage.type === "join"){
-            allSockets.push({
-                socket,
-                room: parsedMessage.payload.roomId
-            })
+        if(parsedMessage.type === "create"){
+            const roomId = parsedMessage.payload.roomId;
+            
+            if(rooms.has(roomId)){
+                socket.send(JSON.stringify({ type: 'error', message: 'Room already exists' }));
+            }
+            rooms.set(roomId, new Set())
+            rooms.get(roomId)?.add(socket)
+            socket.send(JSON.stringify({ type: 'success', message: 'Room created' }));
+
         }
+
+
+        if(parsedMessage.type === "join"){
+            const roomId = parsedMessage.payload.roomId;
+
+            if (!rooms.has(roomId)) {
+                socket.send(JSON.stringify({ type: 'error', message: 'Room does not exist' }));
+            }
+            rooms.get(roomId)!.add(socket)
+
+            console.log(`User joined room: ${roomId}`);
+            socket.send(JSON.stringify({ type: "info", message: `Joined room ${roomId}` }));
+        }
+
+
+
+
         if (parsedMessage.type == "chat") {
             console.log("user wants to chat");
+            
+            let currentUserRoom : string | null = null
 
-            let currentUserRoom = null;
-            for (let i = 0; i < allSockets.length; i++) {
-                if (allSockets[i].socket == socket) {
-                    currentUserRoom = allSockets[i].room
+            for(const [roomId, sockets] of rooms){
+                if (sockets.has(socket)) {
+                    currentUserRoom = roomId;
+                    break
                 }
             }
 
-            for (let i = 0; i < allSockets.length; i++) {
-                if (allSockets[i].room == currentUserRoom) {
-                    allSockets[i].socket.send(parsedMessage.payload.message)
+            if (!currentUserRoom){
+                socket.send(JSON.stringify({ type: "error", message: "You are not in a room" }));
+                return;
+            }
+
+            console.log(`Broadcasting message in room: ${currentUserRoom}`);
+            const chatMessage = parsedMessage.payload.message;
+
+            rooms.get(currentUserRoom)?.forEach((clientSocket) => {
+                if (clientSocket !== socket && clientSocket.readyState === WebSocket.OPEN) {
+                    clientSocket.send(JSON.stringify({ type: "chat", message: chatMessage }));
+                }
+            });
+            
+
+        }
+    })
+
+    socket.on("close", ()=> {
+        console.log("client disconnected");
+
+        for (const [roomId, sockets] of rooms) {
+            if (sockets.delete(socket)) {
+                console.log(`User removed from room: ${roomId}`);
+                if (sockets.size === 0) {
+                    rooms.delete(roomId);
+                    console.log(`Room deleted: ${roomId}`);
                 }
             }
         }
+        
     })
     
 
