@@ -46,7 +46,7 @@ interface WSServerMessage {
 type WSOutgoingMessage = WSCreateMessage | WSJoinMessage | WSChatMessage;
 
 function App() {
-  const [socket, setSocket] = useState<WebSocket | null>(null);
+  // const [socket, setSocket] = useState<WebSocket | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentRoom, setCurrentRoom] = useState<string | null>(null);
   const [error, setError] = useState<string>("");
@@ -87,7 +87,7 @@ function App() {
     ws.onclose = () => console.log("WebSocket connection closed");
 
     wsRef.current = ws;
-    setSocket(ws);
+    // setSocket(ws);
 
     return () => {
       ws.close();
