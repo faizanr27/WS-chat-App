@@ -1,1 +1,1 @@
-#A simple chat app using WEBSOCKETS
+# A simple chat app using WEBSOCKETS and WEBRTC
