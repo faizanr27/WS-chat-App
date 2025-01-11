@@ -57,7 +57,7 @@ function App() {
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8080");
+    const ws = new WebSocket("ws://ws-chat-app-production.up.railway.app");
 
     ws.onopen = () => console.log("WebSocket connection established");
     
