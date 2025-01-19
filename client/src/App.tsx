@@ -51,7 +51,7 @@ function App() {
   const [currentRoom, setCurrentRoom] = useState<string | null>(null);
   const [error, setError] = useState<string>("");
   const [showChat, setShowChat] = useState<boolean>(false);
-  
+
   const inputRef = useRef<HTMLInputElement>(null);
   const messageRef = useRef<HTMLInputElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
@@ -60,10 +60,10 @@ function App() {
     const ws = new WebSocket("wss://ws-chat-app-production.up.railway.app");
 
     ws.onopen = () => console.log("WebSocket connection established");
-    
+
     ws.onmessage = (event: MessageEvent) => {
       const data: WSServerMessage = JSON.parse(event.data);
-      
+
       switch (data.type) {
         case 'error':
           setError(data.message);
@@ -108,7 +108,7 @@ function App() {
       setError("Please enter a room name");
       return;
     }
-    
+
     sendWSMessage({
       type: 'create',
       payload: { roomId }
@@ -126,7 +126,7 @@ function App() {
       type: 'join',
       payload: { roomId }
     });
-    
+
     setCurrentRoom(roomId);
     setShowChat(true);
   };
@@ -134,7 +134,7 @@ function App() {
   const sendMessage = () => {
     const message = messageRef.current?.value;
     if (!message) return;
-    
+
     sendWSMessage({
       type: 'chat',
       payload: { message }
@@ -156,24 +156,24 @@ function App() {
     <div className="bg-gray-900 h-screen">
       <div className="flex justify-center items-center h-full text-white">
         {!showChat ? (
-          <div className="bg-gray-800/30 border-gray-700/60 border p-4 rounded-lg h-[300px] min-w-[350px] flex flex-col gap-2 justify-center items-center">
+          <div className="bg-gray-800/30 border-gray-700/60 border p-4 rounded-lg h-[300px] min-w-[300px]  flex flex-col gap-2 justify-center items-center">
             <h1 className="text-bold text-xl">Chat Room</h1>
-            <input 
-              type="text" 
-              className="p-2 rounded-md outline-none focus:border-black/50 border border-gray-700 bg-inherit" 
+            <input
+              type="text"
+              className="p-2 rounded-md outline-none focus:border-black/50 border border-gray-700 bg-inherit"
               ref={inputRef}
               placeholder="Enter room name"
             />
             {error && <p className="text-red-500 text-sm">{error}</p>}
             <div className="flex gap-2">
-              <button 
-                className="bg-gray-950/60 rounded-md p-2 hover:bg-gray-950/20 hover:border-gray-600/50 hover:border" 
+              <button
+                className="bg-gray-950/60 rounded-md p-2 hover:bg-gray-950/20 hover:border-gray-600/50 hover:border"
                 onClick={createRoom}
               >
                 Create Room
               </button>
-              <button 
-                className="bg-gray-950/60 rounded-md p-2 hover:bg-gray-950/20 hover:border-gray-600/50 hover:border" 
+              <button
+                className="bg-gray-950/60 rounded-md p-2 hover:bg-gray-950/20 hover:border-gray-600/50 hover:border"
                 onClick={joinRoom}
               >
                 Join Room
@@ -181,17 +181,17 @@ function App() {
             </div>
           </div>
         ) : (
-          <div className="bg-gray-800/30 border-gray-700/60 border p-4 rounded-lg h-[600px] min-w-[500px] flex flex-col gap-2">
+          <div className="bg-gray-800/30 border-gray-700/60 border p-4 rounded-lg h-[600px] min-w-[200px] xxs:min-w-[350px] sm:min-w-[500px] flex flex-col gap-2">
             <h2 className="text-lg">Room: {currentRoom}</h2>
             <div className="bg-gray-900/60 p-4 rounded-lg flex-1 overflow-y-auto">
               {messages.map((msg, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className={`p-2 max-w-max rounded-lg mb-2 ${
-                    msg.type === 'self' 
-                      ? 'bg-blue-500 ml-auto' 
-                      : msg.type === 'info' 
-                        ? 'bg-gray-700 mx-auto' 
+                    msg.type === 'self'
+                      ? 'bg-blue-500 ml-auto'
+                      : msg.type === 'info'
+                        ? 'bg-gray-700 mx-auto'
                         : 'bg-gray-600'
                   }`}
                 >
@@ -200,15 +200,15 @@ function App() {
               ))}
             </div>
             <div className="flex items-center flex-row gap-2">
-              <input 
-                ref={messageRef} 
-                type="text" 
-                placeholder="Type your message..." 
+              <input
+                ref={messageRef}
+                type="text"
+                placeholder="Type your message..."
                 className="flex-1 p-2 rounded-md outline-none focus:border-black/50 border border-gray-700 bg-inherit"
                 onKeyPress={handleKeyPress}
               />
-              <button 
-                onClick={sendMessage} 
+              <button
+                onClick={sendMessage}
                 className="bg-gray-950/60 rounded-md p-2 hover:bg-gray-950/20 hover:border-gray-600/50 hover:border"
               >
                 Send
